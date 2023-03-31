@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - python --version
+  pre_build:
+      commands:
+      - echo "Pulling the hadolint docker image"
+      - docker pull hadolint/hadolint:v1.16.2
+  build:
+      commands:
+      - echo "Build started on $(date)"
+      - echo "Scanning with Hadolint..."        
+      - result=`docker run --rm -i -v ${PWD}/hadolint.yml:/.hadolint.yaml hadolint/hadolint:v1.16.2 hadolint -f json - < ${PWD}/Dockerfile`
+  post_build:
+        commands:
+        - echo "Lint Results:"
+        - echo $result | jq . 
+        - aws ssm put-parameter --name "codebuild-dockerfile-results" --type "String" --value "$result" --overwrite
+        - echo Build completed on `date`

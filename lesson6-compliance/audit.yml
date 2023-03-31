@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Audit Manager demo
+Resources:
+  Assessment:
+    Type: AWS::AuditManager::Assessment
+    Properties:
+      FrameworkId: "2ad0cca9-a1bf-3b4a-9769-ef78c51902ba"
+      AssessmentReportsDestination:
+        Destination: !Sub s3://csoa-6-${AWS::AccountId}
+        DestinationType: S3
+      AwsAccount:
+        Id: !Ref AWS::AccountId
+      Name: !Ref AWS::StackName
+      Scope:
+        AwsAccounts:
+        - Id: !Ref AWS::AccountId
+        AwsServices:
+        - ServiceName: a4b
+        - ServiceName: acm
+        - ServiceName: acm-pca
+        - ServiceName: amazonmq
+        - ServiceName: amplify
+      Roles:
+      - RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/csoa-6-audit-role
+        RoleType: PROCESS_OWNER
